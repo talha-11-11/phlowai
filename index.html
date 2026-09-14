@@ -3,252 +3,170 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phlow AI — RAG Chatbot Demo</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Phlow — RAG Research Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Playfair+Display:ital@1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-:root{--bg:#0F172A;--card:#1E293B;--border:#334155;--accent:#3B82F6;--green:#10B981;--orange:#F59E0B;--white:#F1F5F9;--gray:#94A3B8;--dim:#64748B;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--white);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-.nav{background:var(--card);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
-.nav .logo{font-size:18px;font-weight:800;color:var(--accent);}
-.nav .logo span{color:var(--gray);}
-.nav .badge{background:var(--green);color:white;font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px;}
-.nav .demo-tag{background:#F59E0B22;color:#F59E0B;font-size:10px;font-weight:700;padding:3px 10px;border-radius:12px;border:1px solid #F59E0B44;}
-.main{display:grid;grid-template-columns:260px 1fr 260px;flex:1;overflow:hidden;}
-.sidebar{background:var(--card);border-right:1px solid var(--border);padding:16px;overflow-y:auto;}
-.sidebar h3{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
-.agent{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;transition:all 0.3s;}
-.agent.active{border-color:var(--green);background:#10B98110;}
-.agent .name{font-size:11px;font-weight:700;color:var(--white);margin-bottom:2px;}
-.agent .status{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--dim);}
-.agent.active .status{color:var(--green);}
-.metric{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+:root{
+  --bg:#E9F1E3;
+  --panel:#FAFCF7;
+  --white:#FFFFFF;
+  --dgreen:#163625;
+  --dgreen2:#0E271A;
+  --mgreen:#2F6B45;
+  --border:#D9E6D1;
+  --ink:#152219;
+  --dim:#5C6B5E;
+  --faint:#8B9A8C;
+  --display:'Poppins',sans-serif;
+  --serif:'Playfair Display',serif;
+  --sans:'Inter',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.nav{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 26px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.nav .logo{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:17px;color:var(--dgreen);}
+.nav .logo .mark{width:20px;height:20px;border:2.5px solid var(--dgreen);border-radius:50%;}
+.nav .logo span{font-family:var(--sans);font-weight:500;font-size:12.5px;color:var(--dim);margin-left:2px;}
+.nav .right{display:flex;gap:10px;align-items:center;}
+.pill-status{background:var(--dgreen);color:#fff;font-size:11px;font-weight:700;padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:6px;}
+.pill-status .dot{width:6px;height:6px;border-radius:50%;background:#8FE3AE;}
+.pill-tag{background:#F5A62322;color:#B87E12;font-size:10.5px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid #F5A62344;}
+
+.main{display:grid;grid-template-columns:230px 1fr 240px;flex:1;overflow:hidden;}
+
+/* SIDEBARS */
+.sidebar{background:var(--panel);padding:18px 15px;overflow-y:auto;}
+.sidebar.left{border-right:1px solid var(--border);}
+.sidebar.right{border-left:1px solid var(--border);}
+.sidebar h3{font-size:10.5px;font-weight:700;color:var(--mgreen);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;}
+
+.agent-pill{display:flex;align-items:center;gap:9px;background:var(--white);border:1px solid var(--border);border-radius:14px;padding:10px 12px;margin-bottom:8px;transition:all .3s;}
+.agent-pill.active{border-color:var(--mgreen);background:#EFF7EC;}
+.agent-pill .check{width:18px;height:18px;border-radius:50%;background:var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.agent-pill.active .check{background:var(--mgreen);}
+.agent-pill .check svg{width:10px;height:10px;stroke:#fff;}
+.agent-pill .txt .name{font-size:11.5px;font-weight:700;color:var(--ink);}
+.agent-pill .txt .status{font-size:9.5px;font-family:var(--mono);color:var(--faint);}
+.agent-pill.active .txt .status{color:var(--mgreen);}
+
+.metric-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-top:14px;}
+.metric{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);}
 .metric:last-child{border:none;}
-.metric .l{font-size:10px;color:var(--gray);}
-.metric .v{font-size:14px;font-weight:800;font-family:'JetBrains Mono',monospace;}
-.metric .v.b{color:var(--accent);}
-.metric .v.g{color:var(--green);}
-.metric .v.o{color:var(--orange);}
-.chat-area{display:flex;flex-direction:column;overflow:hidden;}
-.chat-header{padding:12px 20px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:1px;}
-.messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;}
-.msg{max-width:85%;padding:12px 16px;border-radius:12px;font-size:13px;line-height:1.7;animation:fadeIn 0.3s ease;}
+.metric .l{font-size:10.5px;color:var(--dim);}
+.metric .v{font-size:13px;font-weight:700;font-family:var(--mono);color:var(--dgreen);}
+
+.suggestion{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:9px;cursor:pointer;position:relative;font-size:11.5px;color:var(--dim);line-height:1.4;transition:all .2s;}
+.suggestion:hover{border-color:var(--mgreen);color:var(--ink);}
+.suggestion .arrow{position:absolute;top:9px;right:9px;width:20px;height:20px;border-radius:50%;background:var(--dgreen);display:flex;align-items:center;justify-content:center;}
+.suggestion .arrow svg{width:9px;height:9px;stroke:#fff;}
+.tech-pill{display:inline-flex;align-items:center;background:var(--dgreen);color:#fff;font-size:10px;font-weight:600;padding:6px 12px;border-radius:20px;margin:0 6px 8px 0;}
+
+/* CHAT */
+.chat-area{display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
+.chat-header{padding:12px 26px;font-size:12px;font-weight:700;color:var(--mgreen);letter-spacing:0.04em;background:var(--panel);border-bottom:1px solid var(--border);}
+.messages{flex:1;overflow-y:auto;padding:28px;display:flex;flex-direction:column;gap:14px;}
+
+.welcome{text-align:center;padding:50px 20px 10px;}
+.welcome h1{font-family:var(--display);font-weight:800;font-size:44px;color:var(--dgreen);letter-spacing:-0.02em;line-height:1.05;}
+.welcome h1 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--mgreen);}
+.welcome p{font-size:13.5px;color:var(--dim);max-width:480px;margin:14px auto 0;line-height:1.6;}
+.welcome .hint{font-size:11.5px;color:var(--faint);margin-top:10px;}
+
+.msg{max-width:78%;padding:14px 20px;border-radius:18px;font-size:13.5px;line-height:1.7;animation:fadeIn .3s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-.msg.user{background:var(--accent);color:white;align-self:flex-end;border-bottom-right-radius:4px;}
-.msg.ai{background:var(--card);border:1px solid var(--border);color:#CBD5E1;align-self:flex-start;border-bottom-left-radius:4px;}
-.msg .source{font-size:10px;color:var(--accent);margin-top:8px;font-family:'JetBrains Mono',monospace;background:#3B82F610;padding:4px 8px;border-radius:4px;display:inline-block;}
-.msg .typing{display:inline-block;}
-.msg .typing span{display:inline-block;width:6px;height:6px;background:var(--gray);border-radius:50%;margin-right:4px;animation:bounce 1.4s infinite;}
-.msg .typing span:nth-child(2){animation-delay:0.2s;}
-.msg .typing span:nth-child(3){animation-delay:0.4s;}
+.msg.user{background:var(--dgreen);color:#fff;align-self:flex-end;border-bottom-right-radius:5px;}
+.msg.ai{background:var(--white);border:1px solid var(--border);color:var(--ink);align-self:flex-start;border-bottom-left-radius:5px;}
+.msg .source{font-size:10.5px;color:var(--mgreen);margin-top:10px;font-family:var(--mono);background:#EFF7EC;padding:5px 10px;border-radius:8px;display:inline-block;}
+.msg .typing span{display:inline-block;width:6px;height:6px;background:var(--faint);border-radius:50%;margin-right:4px;animation:bounce 1.4s infinite;}
+.msg .typing span:nth-child(2){animation-delay:.2s;}
+.msg .typing span:nth-child(3){animation-delay:.4s;}
 @keyframes bounce{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-8px);}}
-.input-area{padding:16px 20px;border-top:1px solid var(--border);display:flex;gap:8px;}
-.input-area input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--white);font-size:13px;font-family:'Inter',sans-serif;outline:none;}
-.input-area input:focus{border-color:var(--accent);}
-.input-area button{background:var(--accent);border:none;border-radius:10px;padding:12px 20px;color:white;font-weight:600;font-size:13px;cursor:pointer;transition:background 0.2s;}
-.input-area button:hover{background:#2563EB;}
-.input-area button:disabled{opacity:0.5;cursor:not-allowed;}
-.right-panel{background:var(--card);border-left:1px solid var(--border);padding:16px;overflow-y:auto;}
-.right-panel h3{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;}
-.suggestion{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;cursor:pointer;transition:all 0.2s;font-size:11px;color:var(--gray);}
-.suggestion:hover{border-color:var(--accent);color:var(--white);}
-.tech-item{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:6px;}
-.tech-item .name{font-size:11px;font-weight:700;color:var(--white);}
-.tech-item .desc{font-size:9px;color:var(--dim);font-family:'JetBrains Mono',monospace;}
-.welcome{text-align:center;padding:60px 30px;color:var(--gray);}
-.welcome h2{font-size:24px;font-weight:800;color:var(--white);margin-bottom:8px;}
-.welcome p{font-size:14px;margin-bottom:20px;}
-@media(max-width:900px){.main{grid-template-columns:1fr;}.sidebar,.right-panel{display:none;}}
+
+.input-area{padding:16px 26px 20px;background:var(--bg);display:flex;gap:10px;}
+.input-pill{flex:1;background:var(--white);border:1px solid var(--border);border-radius:30px;padding:14px 22px;font-size:13.5px;font-family:var(--sans);outline:none;color:var(--ink);}
+.input-pill:focus{border-color:var(--mgreen);}
+.input-pill::placeholder{color:var(--faint);}
+.send-btn{background:var(--dgreen);border:none;border-radius:50%;width:48px;height:48px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;}
+.send-btn:hover{background:var(--dgreen2);}
+.send-btn:disabled{opacity:.5;cursor:not-allowed;}
+.send-btn svg{width:17px;height:17px;stroke:#fff;}
+
+@media(max-width:900px){.main{grid-template-columns:1fr;}.sidebar{display:none;}}
 </style>
 </head>
 <body>
 <div class="nav">
-  <div class="logo">Phlow<span>.ai</span> — RAG Research Assistant</div>
-  <div style="display:flex;gap:8px;align-items:center;">
-    <div class="demo-tag">LIVE DEMO</div>
-    <div class="badge">● Online</div>
+  <div class="logo"><div class="mark"></div>Phlow<span>Research Assistant</span></div>
+  <div class="right">
+    <div class="pill-tag">Live Demo</div>
+    <div class="pill-status"><span class="dot"></span>Online</div>
   </div>
 </div>
+
 <div class="main">
-  <div class="sidebar">
-    <h3>Agent Pipeline</h3>
-    <div class="agent" id="agent-checklist"><div class="name">✓ Checklist Agent</div><div class="status">Waiting...</div></div>
-    <div class="agent" id="agent-retrieval"><div class="name">✓ Retrieval Agent</div><div class="status">Waiting...</div></div>
-    <div class="agent" id="agent-validation"><div class="name">✓ Validation Agent</div><div class="status">Waiting...</div></div>
-    <div class="agent" id="agent-safety"><div class="name">✓ Safety Agent</div><div class="status">Waiting...</div></div>
-    <h3 style="margin-top:20px;">Live Metrics</h3>
-    <div class="metric"><span class="l">Retrieval Accuracy</span><span class="v b" id="m-accuracy">—</span></div>
-    <div class="metric"><span class="l">Cache Hit Rate</span><span class="v g" id="m-cache">—</span></div>
-    <div class="metric"><span class="l">Response Time</span><span class="v o" id="m-latency">—</span></div>
-    <div class="metric"><span class="l">Chunks Retrieved</span><span class="v b" id="m-chunks">—</span></div>
-    <div class="metric"><span class="l">Queries Today</span><span class="v g" id="m-queries">0</span></div>
+  <div class="sidebar left">
+    <h3>Agent pipeline</h3>
+    <div class="agent-pill" id="agent-checklist"><div class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div><div class="txt"><div class="name">Checklist Agent</div><div class="status">Waiting…</div></div></div>
+    <div class="agent-pill" id="agent-retrieval"><div class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div><div class="txt"><div class="name">Retrieval Agent</div><div class="status">Waiting…</div></div></div>
+    <div class="agent-pill" id="agent-validation"><div class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div><div class="txt"><div class="name">Validation Agent</div><div class="status">Waiting…</div></div></div>
+    <div class="agent-pill" id="agent-safety"><div class="check"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div><div class="txt"><div class="name">Safety Agent</div><div class="status">Waiting…</div></div></div>
+    <h3 style="margin-top:18px;">Live metrics</h3>
+    <div class="metric-card">
+      <div class="metric"><span class="l">Retrieval Accuracy</span><span class="v" id="m-accuracy">—</span></div>
+      <div class="metric"><span class="l">Cache Hit Rate</span><span class="v" id="m-cache">—</span></div>
+      <div class="metric"><span class="l">Response Time</span><span class="v" id="m-latency">—</span></div>
+      <div class="metric"><span class="l">Chunks Retrieved</span><span class="v" id="m-chunks">—</span></div>
+      <div class="metric"><span class="l">Queries Today</span><span class="v" id="m-queries">0</span></div>
+    </div>
   </div>
+
   <div class="chat-area">
     <div class="chat-header">Research Assistant — Pharmaceutical Knowledge Base</div>
     <div class="messages" id="messages">
       <div class="welcome">
-        <h2>🧬 Phlow Research Assistant</h2>
-        <p>Ask me about pharmaceutical compounds, synthesis pathways, drug interactions, or clinical data. Every answer is grounded in scientific literature with source citations.</p>
-        <p style="font-size:12px;color:var(--dim);">Try one of the suggested queries on the right →</p>
+        <h1>Ask Phlow,<br>get <em>grounded</em> answers.</h1>
+        <p>Ask about pharmaceutical compounds, synthesis pathways, drug interactions, or clinical data. Every answer is sourced from scientific literature with citations.</p>
+        <div class="hint">Try one of the suggested queries on the right →</div>
       </div>
     </div>
     <div class="input-area">
-      <input type="text" id="input" placeholder="Ask about pharmaceutical research..." />
-      <button id="send-btn" onclick="sendMessage()">Send</button>
+      <input type="text" class="input-pill" id="input" placeholder="Ask about pharmaceutical research…" />
+      <button class="send-btn" id="send-btn" onclick="sendMessage()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
     </div>
   </div>
-  <div class="right-panel">
-    <h3>Try These Queries</h3>
-    <div class="suggestion" onclick="askQuestion(this.textContent)">What are the retrosynthesis pathways for Aspirin?</div>
-    <div class="suggestion" onclick="askQuestion(this.textContent)">Explain CRISPR-Cas9 mechanism of action</div>
-    <div class="suggestion" onclick="askQuestion(this.textContent)">What are PARP inhibitor side effects in breast cancer?</div>
-    <div class="suggestion" onclick="askQuestion(this.textContent)">Compare mRNA vs viral vector vaccine platforms</div>
-    <div class="suggestion" onclick="askQuestion(this.textContent)">What is the mechanism of Metformin in Type 2 diabetes?</div>
-    <h3 style="margin-top:20px;">Tech Stack</h3>
-    <div class="tech-item"><div class="name">LangChain + Haystack</div><div class="desc">Orchestration</div></div>
-    <div class="tech-item"><div class="name">Qdrant Vector DB</div><div class="desc">Similarity Search</div></div>
-    <div class="tech-item"><div class="name">OpenAI GPT-4o</div><div class="desc">Generation</div></div>
-    <div class="tech-item"><div class="name">Redis Cache</div><div class="desc">70%+ Hit Rate</div></div>
-    <div class="tech-item"><div class="name">FastAPI</div><div class="desc">Backend API</div></div>
-    <div class="tech-item"><div class="name">Prometheus</div><div class="desc">Monitoring</div></div>
+
+  <div class="sidebar right">
+    <h3>Try these queries</h3>
+    <div class="suggestion" onclick="askQuestion(this.dataset.q)" data-q="What are the retrosynthesis pathways for Aspirin?">What are the retrosynthesis pathways for Aspirin?<div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+    <div class="suggestion" onclick="askQuestion(this.dataset.q)" data-q="Explain CRISPR-Cas9 mechanism of action">Explain CRISPR-Cas9 mechanism of action<div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+    <div class="suggestion" onclick="askQuestion(this.dataset.q)" data-q="What are PARP inhibitor side effects in breast cancer?">What are PARP inhibitor side effects in breast cancer?<div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+    <div class="suggestion" onclick="askQuestion(this.dataset.q)" data-q="Compare mRNA vs viral vector vaccine platforms">Compare mRNA vs viral vector vaccine platforms<div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+    <div class="suggestion" onclick="askQuestion(this.dataset.q)" data-q="What is the mechanism of Metformin in Type 2 diabetes?">What is the mechanism of Metformin in Type 2 diabetes?<div class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><path d="M7 17L17 7M7 7h10v10"/></svg></div></div>
+    <h3 style="margin-top:18px;">Tech stack</h3>
+    <div><span class="tech-pill">LangChain</span><span class="tech-pill">Haystack</span><span class="tech-pill">Qdrant</span><span class="tech-pill">GPT-4o</span><span class="tech-pill">Redis</span><span class="tech-pill">FastAPI</span><span class="tech-pill">Prometheus</span></div>
   </div>
 </div>
+
 <script>
 const responses = {
-  "aspirin": {
-    text: "Aspirin (acetylsalicylic acid) can be synthesized from salicylic acid through acetylation using acetic anhydride as the acetylating agent, typically catalyzed by phosphoric acid at 50-60°C for 15 minutes.\n\nThree primary retrosynthesis pathways are documented:\n\n1. Classical Kolbe-Schmitt: Starting from phenol → salicylic acid via CO₂ carboxylation under pressure, then acetylation\n2. Biosynthetic pathway: From phenylalanine → cinnamic acid → salicylic acid → aspirin\n3. Modern green chemistry: Using ionic liquid catalysts with 96% yield and recyclable reagents",
-    source: "J. Org. Chem., 2019, Vol 84, p.1127 | Green Chem., 2021, Vol 23, p.445",
-    chunks: 12, accuracy: "87.3%", latency: "1.2s", cache: "68.4%"
-  },
-  "crispr": {
-    text: "CRISPR-Cas9 operates through a three-step mechanism:\n\n1. Recognition: A guide RNA (gRNA) of ~20 nucleotides is designed to complement the target DNA sequence. The gRNA forms a complex with the Cas9 protein.\n\n2. Binding: The Cas9-gRNA complex scans the genome for PAM (Protospacer Adjacent Motif) sequences — typically NGG for SpCas9. Upon finding a PAM adjacent to a sequence matching the gRNA, the complex binds and the DNA double helix is unwound.\n\n3. Cleavage: Cas9's two nuclease domains (RuvC and HNH) each cut one strand of the DNA, creating a double-strand break (DSB). The cell then repairs the break via NHEJ (causing insertions/deletions) or HDR (for precise editing with a template).",
-    source: "Nature Reviews Genetics, 2023, Vol 24, p.89 | Science, 2020, Vol 367, p.1484",
-    chunks: 8, accuracy: "91.2%", latency: "0.9s", cache: "72.1%"
-  },
-  "parp": {
-    text: "PARP inhibitors in breast cancer (particularly BRCA1/2-mutated) show several documented side effects:\n\nCommon (>20% incidence):\n• Nausea and fatigue (reported in 58-76% of patients)\n• Anemia (reported in 40-50%, grade 3-4 in 25%)\n• Thrombocytopenia (15-35%)\n\nSerious but less common:\n• Myelodysplastic syndrome/Acute myeloid leukemia (MDS/AML): 1-2% incidence, median onset 2 years\n• Pneumonitis: <1% but requires immediate discontinuation\n\nThe OLYMPIA trial (Olaparib) showed 3-year invasive disease-free survival of 85.9% vs 77.1% placebo, establishing the benefit-risk profile for adjuvant use in early-stage BRCA+ breast cancer.",
-    source: "NEJM, 2021, Vol 384, p.2394 (OLYMPIA) | Lancet Oncol., 2022, Vol 23, p.1123",
-    chunks: 15, accuracy: "89.5%", latency: "1.4s", cache: "61.8%"
-  },
-  "vaccine": {
-    text: "mRNA vs Viral Vector vaccine platforms differ across several dimensions:\n\nmRNA Platforms (e.g., Pfizer/BioNTech, Moderna):\n• Mechanism: Delivers synthetic mRNA encoding spike protein, translated by host ribosomes\n• Speed: Design to candidate in days; manufacturing scalable via in-vitro transcription\n• Efficacy: 94-95% in Phase III trials\n• Storage: Requires -20°C to -80°C (lipid nanoparticle stability)\n• Immunogenicity: Strong neutralizing antibody + T-cell response\n\nViral Vector Platforms (e.g., AstraZeneca, J&J):\n• Mechanism: Uses modified adenovirus to deliver DNA encoding spike protein\n• Efficacy: 66-70% in Phase III trials\n• Storage: Standard refrigeration (2-8°C) — advantage for global distribution\n• Limitation: Pre-existing immunity to vector can reduce efficacy of booster doses\n• Risk: Rare thrombosis with thrombocytopenia syndrome (TTS), ~1 in 50,000",
-    source: "Nature Medicine, 2022, Vol 28, p.535 | Lancet, 2021, Vol 397, p.99",
-    chunks: 18, accuracy: "85.7%", latency: "1.6s", cache: "55.3%"
-  },
-  "metformin": {
-    text: "Metformin's mechanism in Type 2 Diabetes involves multiple pathways:\n\nPrimary Mechanism — Hepatic glucose production:\n• Inhibits mitochondrial Complex I in hepatocytes\n• Activates AMPK (AMP-activated protein kinase)\n• Suppresses gluconeogenesis by reducing expression of G6Pase and PEPCK\n• Net effect: 25-30% reduction in hepatic glucose output\n\nSecondary Mechanisms:\n• Increases insulin sensitivity in peripheral tissues (muscle, adipose)\n• Enhances glucose uptake via GLUT4 translocation\n• Modifies gut microbiome composition (increases Akkermansia muciniphila)\n• Delays intestinal glucose absorption\n\nMetformin does not stimulate insulin secretion, which is why it does not cause hypoglycemia as monotherapy — a key advantage over sulfonylureas.",
-    source: "Diabetes Care, 2022, Vol 45, p.S198 | Cell Metabolism, 2021, Vol 33, p.1154",
-    chunks: 10, accuracy: "92.1%", latency: "1.1s", cache: "74.5%"
-  }
+  aspirin:{text:"Aspirin (acetylsalicylic acid) can be synthesized from salicylic acid through acetylation using acetic anhydride as the acetylating agent, typically catalyzed by phosphoric acid at 50-60°C for 15 minutes.<br><br>Three primary retrosynthesis pathways are documented:<br><br>1. Classical Kolbe-Schmitt: Starting from phenol → salicylic acid via CO₂ carboxylation under pressure, then acetylation<br>2. Biosynthetic pathway: From phenylalanine → cinnamic acid → salicylic acid → aspirin<br>3. Modern green chemistry: Using ionic liquid catalysts with 96% yield and recyclable reagents",source:"J. Org. Chem., 2019, Vol 84, p.1127 | Green Chem., 2021, Vol 23, p.445",chunks:12,accuracy:"87.3%",latency:"1.2s",cache:"68.4%"},
+  crispr:{text:"CRISPR-Cas9 operates through a three-step mechanism:<br><br>1. Recognition: A guide RNA (gRNA) of ~20 nucleotides is designed to complement the target DNA sequence. The gRNA forms a complex with the Cas9 protein.<br><br>2. Binding: The Cas9-gRNA complex scans the genome for PAM sequences — typically NGG for SpCas9. Upon finding a PAM adjacent to a matching sequence, the complex binds and the DNA double helix is unwound.<br><br>3. Cleavage: Cas9's two nuclease domains (RuvC and HNH) each cut one strand, creating a double-strand break. The cell repairs it via NHEJ or HDR.",source:"Nature Reviews Genetics, 2023, Vol 24, p.89 | Science, 2020, Vol 367, p.1484",chunks:8,accuracy:"91.2%",latency:"0.9s",cache:"72.1%"},
+  parp:{text:"PARP inhibitors in breast cancer (particularly BRCA1/2-mutated) show several documented side effects:<br><br>Common (>20% incidence): nausea and fatigue (58-76%), anemia (40-50%, grade 3-4 in 25%), thrombocytopenia (15-35%)<br><br>Serious but less common: MDS/AML (1-2% incidence, median onset 2 years), pneumonitis (<1%, requires immediate discontinuation)<br><br>The OLYMPIA trial (Olaparib) showed 3-year invasive disease-free survival of 85.9% vs 77.1% placebo, establishing the benefit-risk profile for adjuvant use in early-stage BRCA+ breast cancer.",source:"NEJM, 2021, Vol 384, p.2394 (OLYMPIA) | Lancet Oncol., 2022, Vol 23, p.1123",chunks:15,accuracy:"89.5%",latency:"1.4s",cache:"61.8%"},
+  vaccine:{text:"mRNA vs Viral Vector vaccine platforms differ across several dimensions:<br><br>mRNA (Pfizer/BioNTech, Moderna): delivers synthetic mRNA encoding spike protein; 94-95% efficacy in Phase III; requires -20°C to -80°C storage; strong neutralizing antibody + T-cell response.<br><br>Viral Vector (AstraZeneca, J&J): uses modified adenovirus to deliver DNA; 66-70% efficacy; standard 2-8°C storage — advantage for global distribution; rare TTS risk ~1 in 50,000.",source:"Nature Medicine, 2022, Vol 28, p.535 | Lancet, 2021, Vol 397, p.99",chunks:18,accuracy:"85.7%",latency:"1.6s",cache:"55.3%"},
+  metformin:{text:"Metformin's mechanism in Type 2 Diabetes involves multiple pathways:<br><br>Primary — hepatic glucose production: inhibits mitochondrial Complex I, activates AMPK, suppresses gluconeogenesis (25-30% reduction in hepatic glucose output).<br><br>Secondary: increases peripheral insulin sensitivity, enhances GLUT4 translocation, modifies gut microbiome, delays intestinal glucose absorption.<br><br>Metformin does not stimulate insulin secretion, which is why it does not cause hypoglycemia as monotherapy — a key advantage over sulfonylureas.",source:"Diabetes Care, 2022, Vol 45, p.S198 | Cell Metabolism, 2021, Vol 33, p.1154",chunks:10,accuracy:"92.1%",latency:"1.1s",cache:"74.5%"}
 };
-
-let queryCount = 0;
-
-function getResponse(query) {
-  const q = query.toLowerCase();
-  if (q.includes("aspirin") || q.includes("retrosynthesis")) return responses.aspirin;
-  if (q.includes("crispr") || q.includes("cas9")) return responses.crispr;
-  if (q.includes("parp") || q.includes("breast cancer")) return responses.parp;
-  if (q.includes("mrna") || q.includes("vaccine") || q.includes("viral vector")) return responses.vaccine;
-  if (q.includes("metformin") || q.includes("diabetes")) return responses.metformin;
-  return {
-    text: "Based on the available literature in our knowledge base, I found relevant information on this topic. However, the specific query requires additional context for a fully grounded response.\n\nI recommend refining the question or trying one of the suggested queries for a comprehensive, source-cited answer.\n\nNote: This demo has 5 pre-loaded knowledge domains. In the production system, the RAG pipeline queries 12,847 indexed scientific documents in real-time.",
-    source: "System note — Demo knowledge base (5 domains loaded)",
-    chunks: 3, accuracy: "—", latency: "0.4s", cache: "—"
-  };
-}
-
-function activateAgent(id, status, delay) {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      const el = document.getElementById(id);
-      el.classList.add('active');
-      el.querySelector('.status').textContent = status;
-      resolve();
-    }, delay);
-  });
-}
-
-function resetAgents() {
-  document.querySelectorAll('.agent').forEach(a => {
-    a.classList.remove('active');
-    a.querySelector('.status').textContent = 'Waiting...';
-  });
-}
-
-function updateMetrics(r) {
-  document.getElementById('m-accuracy').textContent = r.accuracy;
-  document.getElementById('m-cache').textContent = r.cache;
-  document.getElementById('m-latency').textContent = r.latency;
-  document.getElementById('m-chunks').textContent = r.chunks;
-  queryCount++;
-  document.getElementById('m-queries').textContent = queryCount;
-}
-
-function addMessage(text, type, source) {
-  const messages = document.getElementById('messages');
-  const welcome = messages.querySelector('.welcome');
-  if (welcome) welcome.remove();
-  const div = document.createElement('div');
-  div.className = `msg ${type}`;
-  if (type === 'ai' && source) {
-    div.innerHTML = text.replace(/\n/g, '<br>') + `<div class="source">📄 ${source}</div>`;
-  } else {
-    div.textContent = text;
-  }
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-  return div;
-}
-
-function addTyping() {
-  const messages = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = 'msg ai';
-  div.id = 'typing';
-  div.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-
-function removeTyping() {
-  const el = document.getElementById('typing');
-  if (el) el.remove();
-}
-
-async function sendMessage() {
-  const input = document.getElementById('input');
-  const btn = document.getElementById('send-btn');
-  const query = input.value.trim();
-  if (!query) return;
-
-  input.value = '';
-  btn.disabled = true;
-  addMessage(query, 'user');
-  resetAgents();
-
-  addTyping();
-  await activateAgent('agent-checklist', 'PASSED — query valid', 400);
-  await activateAgent('agent-retrieval', `${getResponse(query).chunks} chunks retrieved`, 800);
-  await activateAgent('agent-validation', 'Chunks validated', 600);
-  await activateAgent('agent-safety', 'No hallucination detected', 500);
-
-  removeTyping();
-  const r = getResponse(query);
-  addMessage(r.text, 'ai', r.source);
-  updateMetrics(r);
-  btn.disabled = false;
-  input.focus();
-}
-
-function askQuestion(q) {
-  document.getElementById('input').value = q;
-  sendMessage();
-}
-
-document.getElementById('input').addEventListener('keypress', e => {
-  if (e.key === 'Enter') sendMessage();
-});
+let queryCount=0;
+function getResponse(query){const q=query.toLowerCase();if(q.includes("aspirin")||q.includes("retrosynthesis"))return responses.aspirin;if(q.includes("crispr")||q.includes("cas9"))return responses.crispr;if(q.includes("parp")||q.includes("breast cancer"))return responses.parp;if(q.includes("mrna")||q.includes("vaccine")||q.includes("viral vector"))return responses.vaccine;if(q.includes("metformin")||q.includes("diabetes"))return responses.metformin;return{text:"Based on the available literature in our knowledge base, I found relevant information on this topic. However, the specific query requires additional context for a fully grounded response.<br><br>I recommend refining the question or trying one of the suggested queries for a comprehensive, source-cited answer.<br><br>Note: this demo has 5 pre-loaded knowledge domains. In production, the RAG pipeline queries 12,847 indexed scientific documents in real-time.",source:"System note — Demo knowledge base (5 domains loaded)",chunks:3,accuracy:"—",latency:"0.4s",cache:"—"};}
+function activateAgent(id,status,delay){return new Promise(resolve=>{setTimeout(()=>{const el=document.getElementById(id);el.classList.add('active');el.querySelector('.status').textContent=status;resolve();},delay);});}
+function resetAgents(){document.querySelectorAll('.agent-pill').forEach(a=>{a.classList.remove('active');a.querySelector('.status').textContent='Waiting…';});}
+function updateMetrics(r){document.getElementById('m-accuracy').textContent=r.accuracy;document.getElementById('m-cache').textContent=r.cache;document.getElementById('m-latency').textContent=r.latency;document.getElementById('m-chunks').textContent=r.chunks;queryCount++;document.getElementById('m-queries').textContent=queryCount;}
+function addMessage(text,type,source){const messages=document.getElementById('messages');const welcome=messages.querySelector('.welcome');if(welcome)welcome.remove();const div=document.createElement('div');div.className=`msg ${type}`;if(type==='ai'&&source){div.innerHTML=text+`<div class="source">📄 ${source}</div>`;}else{div.textContent=text;}messages.appendChild(div);messages.scrollTop=messages.scrollHeight;return div;}
+function addTyping(){const messages=document.getElementById('messages');const div=document.createElement('div');div.className='msg ai';div.id='typing';div.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';messages.appendChild(div);messages.scrollTop=messages.scrollHeight;}
+function removeTyping(){const el=document.getElementById('typing');if(el)el.remove();}
+async function sendMessage(){const input=document.getElementById('input');const btn=document.getElementById('send-btn');const query=input.value.trim();if(!query)return;input.value='';btn.disabled=true;addMessage(query,'user');resetAgents();addTyping();await activateAgent('agent-checklist','PASSED — query valid',400);await activateAgent('agent-retrieval',`${getResponse(query).chunks} chunks retrieved`,800);await activateAgent('agent-validation','Chunks validated',600);await activateAgent('agent-safety','No hallucination detected',500);removeTyping();const r=getResponse(query);addMessage(r.text,'ai',r.source);updateMetrics(r);btn.disabled=false;input.focus();}
+function askQuestion(q){document.getElementById('input').value=q;sendMessage();}
+document.getElementById('input').addEventListener('keypress',e=>{if(e.key==='Enter')sendMessage();});
 </script>
 </body>
 </html>
